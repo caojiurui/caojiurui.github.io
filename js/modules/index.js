@@ -6,7 +6,7 @@ $(document).ready(function() {
     });
     $('.intro').css({ 'margin-top': -($('.intro').height() / 2) });
 
-    $('.play-link .button').click(function () {
+    $('.link .button').click(function () {
         var type = $(this).data('type')
         location.href = `./dist/${type}/index.html`
     });
