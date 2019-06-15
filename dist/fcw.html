@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>废柴网</title>
+    <style></style>
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        .frameDiv {
+            width: 100%;
+            margin: 6px;
+            float: left;
+        }
+        .frameDiv .title{
+            width: 100%;
+            height: 30px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .frameDiv iframe{
+            width: 100%;
+            height: 400px;
+        }
+        #searchDiv {
+            position: fixed;
+            padding: 5px;
+            font-size: 30px;
+            text-align: center;
+            width: 100%;
+            background: wheat;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+<!--<div id="searchDiv">
+    当前（<span id="num">0</span>）
+    输入页：<input id="pageNum" type="number" min="0" style="width: 50px; height: 30px;">
+    <input type="button" value="搜索" id="searchBtn" style="height: 30px;">
+</div>-->
+<div id="content">
+
+</div>
+<!--<video src="https://www.fcw57.com/embed/3646"></video>-->
+</body>
+<script>
+	$(function () {
+        function initList(startNum) {
+	        for (var i = startNum; i <= startNum+200; i++) {
+		        var tpl = `<div class="frameDiv" >
+                            <div class="title">序号:<span class="i">${i}</span></div>
+                            <iframe _src="https://www.fcww10.com/embed/${i}" name="f_${i}"></iframe>
+                        </div>`
+		        $('#content').append(tpl);
+	        }
+	        $('#pageNum').attr('max',startNum+200)
+	        window.initListFlag = 0
+        }
+
+        //递归加载iframe,加载第一个完成自动加载第二个
+        var loadIframe = function(startIndex,loadCount){
+	        var $iframe = $('#content iframe:eq('+startIndex+')');
+	        if(!$iframe.attr('src')){
+		        $iframe.attr("src", $iframe.attr("_src")).removeAttr("_src");
+		        $iframe.load(function () { //加载成功
+	        		if(loadCount > 0){
+				        loadCount--;
+				        loadIframe(startIndex+1,loadCount);
+                    }
+                    console.warn('loadSuccess ' + startIndex)
+		        })
+            }
+        }
+		//滚动加载
+		var scrollLoad = function () {
+			$("#content .frameDiv").each(function (i,item) {
+
+				//是否可视
+				var sTop = this.offsetTop;
+				if (sTop >= $(window).scrollTop() && sTop < ($(window).scrollTop()+$(window).height())) {
+
+					loadIframe(i,10)
+					//设置序号
+					$('#num').text($(this).find('.i').text())
+					$('#pageNum').val($(this).find('.i').text())
+                    return false;
+				// }else{
+					// t.attr("_src", t.attr("src")).removeAttr("src");
+                }
+			});
+		}
+		$(window).scroll(function () {
+			//已经滚动到底部了
+			if ($(document).scrollTop() >= $(document).height() - $(window).height() - 500 && !window.initListFlag ) {
+				window.initListFlag = 1
+				initList(parseInt($('#num').text()))
+			}else {
+                scrollLoad();
+			}
+		});
+
+		$('#searchBtn').click(function () {
+			var num = parseInt($('#pageNum').val());
+            $(window).scrollTop(400*4*num)
+			scrollLoad();
+            $('#pageNum').val('')
+
+		})
+
+        var num = window.prompt("输入需要跳转的页数","2222");
+		initList(parseInt(num))
+		scrollLoad();
+	})
+</script>
+</html>
