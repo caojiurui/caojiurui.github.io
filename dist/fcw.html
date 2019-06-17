@@ -45,71 +45,75 @@
 </body>
 <script>
 	$(function () {
-        function initList(startNum) {
-	        for (var i = startNum; i <= startNum+200; i++) {
-		        var tpl = `<div class="frameDiv" >
-                            <div class="title">序号:<span class="i">${i}</span></div>
-                            <iframe _src="https://www.fcww10.com/embed/${i}" name="f_${i}"></iframe>
-                        </div>`
-		        $('#content').append(tpl);
-	        }
-	        $('#pageNum').attr('max',startNum+200)
-	        window.initListFlag = 0
-        }
-
-        //递归加载iframe,加载第一个完成自动加载第二个
-        var loadIframe = function(startIndex,loadCount){
-	        var $iframe = $('#content iframe:eq('+startIndex+')');
-	        if(!$iframe.attr('src')){
-		        $iframe.attr("src", $iframe.attr("_src")).removeAttr("_src");
-		        $iframe.load(function () { //加载成功
-	        		if(loadCount > 0){
-				        loadCount--;
-				        loadIframe(startIndex+1,loadCount);
-                    }
-                    console.warn('loadSuccess ' + startIndex)
-		        })
-            }
-        }
-		//滚动加载
-		var scrollLoad = function () {
-			$("#content .frameDiv").each(function (i,item) {
-
-				//是否可视
-				var sTop = this.offsetTop;
-				if (sTop >= $(window).scrollTop() && sTop < ($(window).scrollTop()+$(window).height())) {
-
-					loadIframe(i,10)
-					//设置序号
-					$('#num').text($(this).find('.i').text())
-					$('#pageNum').val($(this).find('.i').text())
-                    return false;
-				// }else{
-					// t.attr("_src", t.attr("src")).removeAttr("src");
-                }
-			});
-		}
-		$(window).scroll(function () {
-			//已经滚动到底部了
-			if ($(document).scrollTop() >= $(document).height() - $(window).height() - 500 && !window.initListFlag ) {
-				window.initListFlag = 1
-				initList(parseInt($('#num').text()))
-			}else {
-                scrollLoad();
+		function initList(startNum) {
+			for (var i = startNum; i <= startNum+200; i++) {
+				var tpl = `<div class="frameDiv" >
+				    <div class="title">序号:<span class="i">${i}</span></div>
+				    <iframe _src="https://www.fcww10.com/embed/${i}" name="f_${i}"></iframe>
+				</div>`
+				$('#content').append(tpl);
 			}
-		});
+			$('#pageNum').attr('max',startNum+200)
+			window.initListFlag = 0
+		}
 
-		$('#searchBtn').click(function () {
-			var num = parseInt($('#pageNum').val());
-            $(window).scrollTop(400*4*num)
+		//递归加载iframe,加载第一个完成自动加载第二个
+		var loadIframe = function(startIndex,loadCount){
+			var $iframe = $('#content iframe:eq('+startIndex+')');
+			if(!$iframe.attr('src')){
+				$iframe.attr("src", $iframe.attr("_src")).removeAttr("_src");
+				$iframe.load(function () { //加载成功
+					if(loadCount > 0){
+						loadCount--;
+						loadIframe(startIndex+1,loadCount);
+			    }
+					$iframe[0].contentDocument.querySelector('.fp-screen').click()
+			    console.warn('loadSuccess ' + startIndex)
+				})
+				
+		    }
+		}
+			//滚动加载
+			var scrollLoad = function () {
+				$("#content .frameDiv").each(function (i,item) {
+
+					//是否可视
+					var sTop = this.offsetTop;
+					if (sTop >= $(window).scrollTop() && sTop < ($(window).scrollTop()+$(window).height())) {
+
+						loadIframe(i,10)
+						//设置序号
+						$('#num').text($(this).find('.i').text())
+						$('#pageNum').val($(this).find('.i').text())
+			    return false;
+					// }else{
+						// t.attr("_src", t.attr("src")).removeAttr("src");
+			}
+				});
+			}
+			$(window).scroll(function () {
+				//已经滚动到底部了
+				if ($(document).scrollTop() >= $(document).height() - $(window).height() - 500 && !window.initListFlag ) {
+					window.initListFlag = 1
+					initList(parseInt($('#num').text()))
+				}else {
 			scrollLoad();
-            $('#pageNum').val('')
+				}
+			});
+
+			$('#searchBtn').click(function () {
+				var num = parseInt($('#pageNum').val());
+		    $(window).scrollTop(400*4*num)
+				scrollLoad();
+		    $('#pageNum').val('')
 
 		})
-
-        var num = window.prompt("输入需要跳转的页数","2222");
-		initList(parseInt(num))
-		scrollLoad();
+		if(window.prompt("请输入密码","222") == "222"){
+			var num = window.prompt("输入需要跳转的页数","2222");
+			initList(parseInt(num))
+			scrollLoad();
+		}	
+        
 	})
 </script>
 </html>
